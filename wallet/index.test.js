@@ -59,5 +59,26 @@ describe('Wallet',()=>{
         it('calculates the balance for blockchain transaction matching the sender', ()=>{
             expect(senderWallet.calculateBalance(bc)).toEqual(INITIAL_BALANCE - (addBalance*repeatAdd));
         });
+
+        describe('and the recipient conductsa transaction',()=>{
+            beforeEach(()=>{
+                tp.clear();
+                subractBalance = 60;
+                recipientBalance = wallet.calculateBalance(bc);
+                wallet.createTransaction(senderWallet.publicKey,subractBalance,bc,tp);
+                bc.addBlock(tp.transactions);
+            });
+
+            describe('and the sender sends another transaction to the receipienrt',()=>{
+                beforeEach(()=>{
+                    tp.clear();
+                    senderWallet.createTransaction(wallet.publicKey,addBalance,bc,tp);
+                    bc.addBlock(tp.transactions);
+                });
+                it('calculates the balance for blockchain transaction matching the recipient', ()=>{
+                    expect(wallet.calculateBalance(bc)).toEqual(recipientBalance - subractBalance + addBalance);
+                });
+            });
+        });
     });
 });
